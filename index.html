@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversor de Moeda - BRL para USD</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 300px;
+        }
+        h1 {
+            color: #4CAF50;
+        }
+        input[type="number"] {
+            padding: 10px;
+            width: 100%;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+        .error {
+            color: red;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Conversor BRL para USD</h1>
+    <input type="number" id="valorBRL" placeholder="Digite o valor em reais (BRL)" min="0" step="0.01">
+    <button onclick="converter()">Converter</button>
+    <div class="result" id="resultado"></div>
+    <div class="error" id="erro"></div>
+</div>
+
+<script>
+    // Função para obter a cotação do dólar em relação ao real (BRL)
+    async function obterCotacao() {
+        const url = "https://economia.awesomeapi.com.br/last/BRL-USD";
+        
+        try {
+            const resposta = await fetch(url);
+            const dados = await resposta.json();
+            return parseFloat(dados['BRLUSD']['bid']);  // Retorna o valor de venda (bid)
+        } catch (erro) {
+            console.error("Erro ao acessar a API:", erro);
+            return null;
+        }
+    }
+
+    // Função para realizar a conversão de BRL para USD
+    async function converter() {
+        const valorBRL = parseFloat(document.getElementById("valorBRL").value);
+        const resultadoElement = document.getElementById("resultado");
+        const erroElement = document.getElementById("erro");
+
+        // Limpar qualquer resultado anterior
+        resultadoElement.textContent = '';
+        erroElement.textContent = '';
+
+        if (isNaN(valorBRL) || valorBRL <= 0) {
+            erroElement.textContent = "Por favor, insira um valor positivo válido.";
+            return;
+        }
+
+        // Obter a cotação do dólar
+        const cotacao = await obterCotacao();
+        
+        if (cotacao) {
+            // Converter o valor de BRL para USD
+            const valorUSD = valorBRL / cotacao;
+            resultadoElement.textContent = `R$ ${valorBRL.toFixed(2)} equivale a $ ${valorUSD.toFixed(2)} USD.`;
+        } else {
+            erroElement.textContent = "Não foi possível obter a cotação. Tente novamente mais tarde.";
+        }
+    }
+</script>
+
+</body>
+</html>
